@@ -10,11 +10,10 @@ jobs:
           command: |
             git clone -b backend https://github.com/gwefoss/labo2CircleCI.git ~/3w5-h24-tp2-backend
             cd ~/3w5-h24-tp2-backend
-            npm install
+            npm install -y
       - run:
           name: Exécuter les tests du backend
           command: |
-            cd ~/3w5-h24-tp2-backend
             npm test
       - persist_to_workspace:
           root: ~/3w5-h24-tp2-backend
