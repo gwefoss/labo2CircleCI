@@ -16,6 +16,7 @@ jobs:
           name: Vérifier le répertoire courant et le contenu de package.json
           command: |
             cd ~/3w5-h24-tp2-backend
+            cd 3w5-h24-tp2-backend
             echo "Répertoire courant : $(pwd)"
             echo "Liste des fichiers :"
             ls -al
@@ -26,6 +27,7 @@ jobs:
           name: Exécuter les tests du backend
           command: |
             cd ~/3w5-h24-tp2-backend
+            cd 3w5-h24-tp2-backend
             npm test
       - persist_to_workspace:
           root: ~/3w5-h24-tp2-backend
