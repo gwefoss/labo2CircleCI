@@ -5,15 +5,17 @@ jobs:
     docker:
       - image: cimg/node:15.8.0
     steps:
-      - checkout
+      - checkout:
+          path: ~/repo
       - run: 
-          name: Clone_backend_repo_et_install_dependences
+          name: Installer les dépendances et exécuter les tests dans le backend
           command: |
+            cd ~/repo
             if [ -d "3w5-h24-tp2-backend" ]; then
-              echo "Le répertoire existe déjà, suppression..."
+              echo "Le répertoire backend existe déjà, suppression..."
               rm -rf 3w5-h24-tp2-backend
             fi
-            git clone https://github.com/gwefoss/labo2CircleCI.git 3w5-h24-tp2-backend
+            git clone -b backend https://github.com/gwefoss/labo2CircleCI.git 3w5-h24-tp2-backend
             cd 3w5-h24-tp2-backend
             npm install
             npm test
@@ -22,30 +24,33 @@ jobs:
     docker:
       - image: cimg/node:15.8.0
     steps:
-      - checkout
+      - checkout:
+          path: ~/frontend
       - run:
-          name: Clone_frontend_repo
+          name: Cloner et préparer le répertoire frontend
           command: |
             if [ -d "3w5-h24-tp2-frontend" ]; then
-              echo "Le répertoire existe déjà, suppression..."
+              echo "Le répertoire frontend existe déjà, suppression..."
               rm -rf 3w5-h24-tp2-frontend
             fi
-            git clone https://github.com/gwefoss/labo2CircleCI.git 3w5-h24-tp2-frontend
-      - run:
-          name: Install_frontend_dependences_et_build
-          command: |
+            git clone -b frontend https://github.com/gwefoss/labo2CircleCI.git 3w5-h24-tp2-frontend
             cd 3w5-h24-tp2-frontend
             npm install
             npm run build
+      - checkout:
+          path: ~/backend
       - run:
-          name: Prepare_backend_directory
+          name: Préparer le répertoire backend et copier le build frontend
           command: |
-            if [ ! -d "3w5-h24-tp2-backend/public" ]; then
-              mkdir -p 3w5-h24-tp2-backend/public
+            if [ -d "~/backend/3w5-h24-tp2-backend" ]; then
+              echo "Le répertoire backend pour intégration existe déjà, suppression..."
+              rm -rf ~/backend/3w5-h24-tp2-backend
             fi
-            cp -R 3w5-h24-tp2-frontend/build/* 3w5-h24-tp2-backend/public/
+            git clone -b backend https://github.com/gwefoss/labo2CircleCI.git ~/backend/3w5-h24-tp2-backend
+            mkdir -p ~/backend/3w5-h24-tp2-backend/public
+            cp -R ~/frontend/3w5-h24-tp2-frontend/build/* ~/backend/3w5-h24-tp2-backend/public/
       - persist_to_workspace:
-          root: .
+          root: ~/backend
           paths:
             - 3w5-h24-tp2-backend
 
@@ -54,20 +59,29 @@ jobs:
       - image: cimg/node:15.8.0
     steps:
       - attach_workspace:
-          at: /workspace
+          at: ~/backend
       - run:
-          name: Lister_backend_directory
+          name: Lister le contenu du répertoire backend
           command: |
-            cd /workspace/3w5-h24-tp2-backend
+            cd ~/backend/3w5-h24-tp2-backend
             ls -Rl
 
 workflows:
   build_and_deploy:
     jobs:
-      - checkoutEtTests
+      - checkoutEtTests:
+          filters:
+            branches:
+              only: backend
       - integrationFrontend:
           requires:
             - checkoutEtTests
+          filters:
+            branches:
+              only: frontend
       - deploiement:
           requires:
             - integrationFrontend
+          filters:
+            branches:
+              only: backend
