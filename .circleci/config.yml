@@ -13,6 +13,13 @@ jobs:
             npm install -y
 
       - run:
+          name: Installer Jest globalement et ajuster les permissions
+          command: |
+            sudo npm install -g jest
+            sudo chmod +x $(which jest)
+
+
+      - run:
           name: Vérifier le répertoire courant et le contenu de package.json
           command: |
             cd ~/3w5-h24-tp2-backend
