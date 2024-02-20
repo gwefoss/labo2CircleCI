@@ -1,0 +1,82 @@
+version: 2.1
+
+jobs:
+  integration_tests_backend:
+    machine: true
+    steps:
+      - run: echo "Waiting until response from staging..."
+  deploy_staging:
+    machine: true
+    steps:
+      - run: echo "deploy staging ...."
+  deploy_production:
+    machine: true
+    steps:
+      - run: echo "deploy production build"
+  acceptances1:
+    machine: true
+    steps:
+      - run: echo "acceptance tests 1-5"
+
+
+  checkout_and_unit_test:
+    docker:
+      - image: cimg/node:15.8.0
+    steps:
+      - checkout
+      - run: echo "unit tests"
+  acceptances2:
+    machine: true
+    steps:
+      - run: echo "acceptance tests 6-10"
+  acceptances3:
+    machine: true
+    steps:
+      - run: echo "acceptance tests 11-15"
+  acceptances4:
+    machine: true
+    steps:
+      - run: echo "acceptance tests 16-20"
+  deploy_backend:
+    machine: true
+    steps:
+      - run: echo "deploy backend"
+  notifyNewVersion:
+    machine: true
+    steps:
+      - run: echo "notifying client of new version"
+
+
+
+workflows:
+  build:
+    jobs:
+      - checkout_and_unit_test
+      - deploy_backend:
+          requires:
+            - checkout_and_unit_test
+      - integration_tests_backend:
+          requires:
+            - deploy_backend
+      - deploy_staging:
+          requires:
+            - integration_tests_backend
+      - acceptances1:
+          requires:
+            - deploy_staging
+      - acceptances2:
+          requires:
+            - deploy_staging
+      - acceptances3:
+          requires:
+            - deploy_staging
+      - acceptances4:
+          requires:
+            - deploy_staging                        
+      - deploy_production:
+          requires:
+            - acceptances1
+            - acceptances2
+            - acceptances3
+            - acceptances4
+
