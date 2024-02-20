@@ -1,82 +1,62 @@
 version: 2.1
 
 jobs:
-  integration_tests_backend:
-    machine: true
-    steps:
-      - run: echo "Waiting until response from staging..."
-  deploy_staging:
-    machine: true
-    steps:
-      - run: echo "deploy staging ...."
-  deploy_production:
-    machine: true
-    steps:
-      - run: echo "deploy production build"
-  acceptances1:
-    machine: true
-    steps:
-      - run: echo "acceptance tests 1-5"
-
-
-  checkout_and_unit_test:
+  checkoutEtTests:
     docker:
       - image: cimg/node:15.8.0
     steps:
       - checkout
-      - run: echo "unit tests"
-  acceptances2:
-    machine: true
-    steps:
-      - run: echo "acceptance tests 6-10"
-  acceptances3:
-    machine: true
-    steps:
-      - run: echo "acceptance tests 11-15"
-  acceptances4:
-    machine: true
-    steps:
-      - run: echo "acceptance tests 16-20"
-  deploy_backend:
-    machine: true
-    steps:
-      - run: echo "deploy backend"
-  notifyNewVersion:
-    machine: true
-    steps:
-      - run: echo "notifying client of new version"
+      - run: 
+          name: Clone_backend_repo_et_install_dependences
+          command: |
+            git clone https://github.com/gwefoss/labo2CircleCI/tree/main/3w5-h24-tp2-backend 3w5-h24-tp2-backend
+            cd 3w5-h24-tp2-backend
+            npm install
+            npm test
 
+  integrationFrontend:
+    docker:
+      - image: cimg/node:15.8.0
+    steps:
+      - checkout
+      - run:
+          name: Clone_frontend_repo
+          command: git clone https://github.com/gwefoss/labo2CircleCI/tree/main/3w5-h24-tp2-frontend 3w5-h24-tp2-frontend
+      - run:
+          name: Install_frontend_dependences_et_build
+          command: |
+            cd 3w5-h24-tp2-frontend
+            npm install
+            npm run build
+      - run:
+          name: Prepare_backend_directory
+          command: |
+            mkdir -p 3w5-h24-tp2-backend/public
+            cp -R 3w5-h24-tp2-frontend/build/* 3w5-h24-tp2-backend/public/
+      - persist_to_workspace:
+          root: .
+          paths:
+            - 3w5-h24-tp2-backend
 
+  deploiement:
+    docker:
+      - image: cimg/node:15.8.0
+    steps:
+      - attach_workspace:
+          at: /workspace
+      - run:
+          name: Lister_backend_directory
+          command: |
+            cd /workspace/3w5-h24-tp2-backend
+            ls -Rl
 
 workflows:
-  build:
+  build_and_deploy:
     jobs:
-      - checkout_and_unit_test
-      - deploy_backend:
+      - checkoutEtTests
+      - integrationFrontend:
           requires:
-            - checkout_and_unit_test
-      - integration_tests_backend:
+            - checkoutEtTests
+      - deploiement:
           requires:
-            - deploy_backend
-      - deploy_staging:
-          requires:
-            - integration_tests_backend
-      - acceptances1:
-          requires:
-            - deploy_staging
-      - acceptances2:
-          requires:
-            - deploy_staging
-      - acceptances3:
-          requires:
-            - deploy_staging
-      - acceptances4:
-          requires:
-            - deploy_staging                        
-      - deploy_production:
-          requires:
-            - acceptances1
-            - acceptances2
-            - acceptances3
-            - acceptances4
-
+            - integrationFrontend
