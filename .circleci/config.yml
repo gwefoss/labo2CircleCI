@@ -9,7 +9,7 @@ jobs:
       - run: 
           name: Clone_backend_repo_et_install_dependences
           command: |
-            git clone https://github.com/gwefoss/labo2CircleCI/tree/main/3w5-h24-tp2-backend 3w5-h24-tp2-backend
+            git clone https://github.com/gwefoss/labo2CircleCI.git 3w5-h24-tp2-backend
             cd 3w5-h24-tp2-backend
             npm install
             npm test
@@ -21,7 +21,7 @@ jobs:
       - checkout
       - run:
           name: Clone_frontend_repo
-          command: git clone https://github.com/gwefoss/labo2CircleCI/tree/main/3w5-h24-tp2-frontend 3w5-h24-tp2-frontend
+          command: git clone https://github.com/gwefoss/labo2CircleCI.git 3w5-h24-tp2-frontend
       - run:
           name: Install_frontend_dependences_et_build
           command: |
