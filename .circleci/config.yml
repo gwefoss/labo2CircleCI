@@ -67,7 +67,6 @@ jobs:
             ls -Rl
 
 workflows:
-  version: 2
   build_and_deploy:
     jobs:
       - checkoutEtTests:
