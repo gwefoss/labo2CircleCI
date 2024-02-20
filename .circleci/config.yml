@@ -5,65 +5,67 @@ jobs:
     docker:
       - image: cimg/node:15.8.0
     steps:
-      - checkout:
-          path: ~/repo
-      - run: 
-          name: Installer les dépendances et exécuter les tests dans le backend
+      - run:
+          name: Cloner le répertoire backend et installer les dépendances
           command: |
-            cd ~/repo
+            git clone -b backend https://github.com/gwefoss/labo2CircleCI.git ~/3w5-h24-tp2-backend
+            cd ~/3w5-h24-tp2-backend
             npm install
+      - run:
+          name: Exécuter les tests du backend
+          command: |
+            cd ~/3w5-h24-tp2-backend
             npm test
+      - persist_to_workspace:
+          root: ~/3w5-h24-tp2-backend
+          paths:
+            - .
 
   integrationFrontend:
     docker:
       - image: cimg/node:15.8.0
     steps:
       - run:
-          name: Cloner le répertoire frontend
+          name: Cloner le répertoire frontend et installer les dépendances
           command: |
-            git clone -b frontend https://github.com/gwefoss/labo2CircleCI.git ~/repo
-            cd ~/repo
+            git clone -b frontend https://github.com/gwefoss/labo2CircleCI.git ~/3w5-h24-tp2-frontend
+            cd ~/3w5-h24-tp2-frontend
             npm install
+      - run:
+          name: Construire le frontend
+          command: |
+            cd ~/3w5-h24-tp2-frontend
             npm run build
       - run:
-          name: Cloner le répertoire backend et préparer le répertoire public
+          name: Préparer le répertoire public du backend
           command: |
-            git clone -b backend https://github.com/gwefoss/labo2CircleCI.git ~/backend
-            mkdir -p ~/backend/public
-            cp -R ~/repo/build/* ~/backend/public/
+            mkdir -p ~/3w5-h24-tp2-backend/public
+            cp -R ~/3w5-h24-tp2-frontend/build/* ~/3w5-h24-tp2-backend/public/
       - persist_to_workspace:
-          root: ~/backend
+          root: ~/3w5-h24-tp2-backend
           paths:
-            - public
+            - .
 
   deploiement:
     docker:
       - image: cimg/node:15.8.0
     steps:
       - attach_workspace:
-          at: ~/backend
+          at: ~/3w5-h24-tp2-backend
       - run:
           name: Lister le contenu du répertoire backend
           command: |
-            ls -Rl ~/backend
+            cd ~/3w5-h24-tp2-backend
+            ls -Rl
 
 workflows:
   version: 2
   build_and_deploy:
     jobs:
-      - checkoutEtTests:
-          filters:
-            branches:
-              only: backend
+      - checkoutEtTests
       - integrationFrontend:
           requires:
             - checkoutEtTests
-          filters:
-            branches:
-              only: frontend
       - deploiement:
           requires:
             - integrationFrontend
-          filters:
-            branches:
-              only: backend
