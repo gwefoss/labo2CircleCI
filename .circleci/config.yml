@@ -11,6 +11,16 @@ jobs:
             git clone -b backend https://github.com/gwefoss/labo2CircleCI.git ~/3w5-h24-tp2-backend
             cd ~/3w5-h24-tp2-backend
             npm install -y
+
+      - run:
+          name: Vérifier le répertoire courant et le contenu de package.json
+          command: |
+            echo "Répertoire courant : $(pwd)"
+            echo "Liste des fichiers :"
+            ls -al
+            echo "Contenu de package.json :"
+            cat package.json
+
       - run:
           name: Exécuter les tests du backend
           command: |
