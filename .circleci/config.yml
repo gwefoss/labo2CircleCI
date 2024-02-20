@@ -50,17 +50,19 @@ jobs:
           command: |
             git clone -b frontend https://github.com/gwefoss/labo2CircleCI.git ~/3w5-h24-tp2-frontend
             cd ~/3w5-h24-tp2-frontend
+            cd 3w5-h24-tp2-frontend
             npm install
       - run:
           name: Construire le frontend
           command: |
             cd ~/3w5-h24-tp2-frontend
+            cd 3w5-h24-tp2-frontend
             npm run build
       - run:
           name: Préparer le répertoire public du backend
           command: |
-            mkdir -p ~/3w5-h24-tp2-backend/public
-            cp -R ~/3w5-h24-tp2-frontend/build/* ~/3w5-h24-tp2-backend/public/
+            mkdir -p ~/3w5-h24-tp2-backend/3w5-h24-tp2-backend/public
+            cp -R ~/3w5-h24-tp2-frontend/3w5-h24-tp2-frontend/build/* ~/3w5-h24-tp2-backend/3w5-h24-tp2-frontend/public/
       - persist_to_workspace:
           root: ~/3w5-h24-tp2-backend
           paths:
@@ -76,6 +78,7 @@ jobs:
           name: Lister le contenu du répertoire backend
           command: |
             cd ~/3w5-h24-tp2-backend
+            cd 3w5-h24-tp2-backend
             ls -Rl
 
 workflows:
