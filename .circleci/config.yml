@@ -1,0 +1,73 @@
+version: 2.1
+
+jobs:
+  checkoutEtTests:
+    docker:
+      - image: cimg/node:15.8.0
+    steps:
+      - checkout
+      - run: 
+          name: Clone_backend_repo_et_install_dependences
+          command: |
+            if [ -d "3w5-h24-tp2-backend" ]; then
+              echo "Le répertoire existe déjà, suppression..."
+              rm -rf 3w5-h24-tp2-backend
+            fi
+            git clone https://github.com/gwefoss/labo2CircleCI.git 3w5-h24-tp2-backend
+            cd 3w5-h24-tp2-backend
+            npm install
+            npm test
+
+  integrationFrontend:
+    docker:
+      - image: cimg/node:15.8.0
+    steps:
+      - checkout
+      - run:
+          name: Clone_frontend_repo
+          command: |
+            if [ -d "3w5-h24-tp2-frontend" ]; then
+              echo "Le répertoire existe déjà, suppression..."
+              rm -rf 3w5-h24-tp2-frontend
+            fi
+            git clone https://github.com/gwefoss/labo2CircleCI.git 3w5-h24-tp2-frontend
+      - run:
+          name: Install_frontend_dependences_et_build
+          command: |
+            cd 3w5-h24-tp2-frontend
+            npm install
+            npm run build
+      - run:
+          name: Prepare_backend_directory
+          command: |
+            if [ ! -d "3w5-h24-tp2-backend/public" ]; then
+              mkdir -p 3w5-h24-tp2-backend/public
+            fi
+            cp -R 3w5-h24-tp2-frontend/build/* 3w5-h24-tp2-backend/public/
+      - persist_to_workspace:
+          root: .
+          paths:
+            - 3w5-h24-tp2-backend
+
+  deploiement:
+    docker:
+      - image: cimg/node:15.8.0
+    steps:
+      - attach_workspace:
+          at: /workspace
+      - run:
+          name: Lister_backend_directory
+          command: |
+            cd /workspace/3w5-h24-tp2-backend
+            ls -Rl
+
+workflows:
+  build_and_deploy:
+    jobs:
+      - checkoutEtTests
+      - integrationFrontend:
+          requires:
+            - checkoutEtTests
+      - deploiement:
+          requires:
+            - integrationFrontend
