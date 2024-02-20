@@ -62,7 +62,7 @@ jobs:
           name: Préparer le répertoire public du backend
           command: |
             mkdir -p ~/3w5-h24-tp2-backend/3w5-h24-tp2-backend/public
-            cp -R ~/3w5-h24-tp2-frontend/3w5-h24-tp2-frontend/build/* ~/3w5-h24-tp2-backend/3w5-h24-tp2-frontend/public/
+            cp -R ~/3w5-h24-tp2-frontend/3w5-h24-tp2-frontend/build/* ~/3w5-h24-tp2-backend/3w5-h24-tp2-backend/public/
       - persist_to_workspace:
           root: ~/3w5-h24-tp2-backend
           paths:
