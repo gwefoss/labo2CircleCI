@@ -9,6 +9,10 @@ jobs:
       - run: 
           name: Clone_backend_repo_et_install_dependences
           command: |
+            if [ -d "3w5-h24-tp2-backend" ]; then
+              echo "Le répertoire existe déjà, suppression..."
+              rm -rf 3w5-h24-tp2-backend
+            fi
             git clone https://github.com/gwefoss/labo2CircleCI.git 3w5-h24-tp2-backend
             cd 3w5-h24-tp2-backend
             npm install
@@ -21,7 +25,12 @@ jobs:
       - checkout
       - run:
           name: Clone_frontend_repo
-          command: git clone https://github.com/gwefoss/labo2CircleCI.git 3w5-h24-tp2-frontend
+          command: |
+            if [ -d "3w5-h24-tp2-frontend" ]; then
+              echo "Le répertoire existe déjà, suppression..."
+              rm -rf 3w5-h24-tp2-frontend
+            fi
+            git clone https://github.com/gwefoss/labo2CircleCI.git 3w5-h24-tp2-frontend
       - run:
           name: Install_frontend_dependences_et_build
           command: |
@@ -31,7 +40,9 @@ jobs:
       - run:
           name: Prepare_backend_directory
           command: |
-            mkdir -p 3w5-h24-tp2-backend/public
+            if [ ! -d "3w5-h24-tp2-backend/public" ]; then
+              mkdir -p 3w5-h24-tp2-backend/public
+            fi
             cp -R 3w5-h24-tp2-frontend/build/* 3w5-h24-tp2-backend/public/
       - persist_to_workspace:
           root: .
